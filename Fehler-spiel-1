@@ -1,0 +1,115 @@
+import React, { useState, useEffect } from 'react';
+
+const ObjectMovement = () => {
+  const [playerX, setPlayerX] = useState(100);
+  const [playerY, setPlayerY] = useState(200);
+  const [obstacles, setObstacles] = useState([
+    { x: 300, y: 380 }, // Hindernis auf Bodenhöhe
+    { x: 500, y: 380 }, // Hindernis auf Bodenhöhe
+    // Füge hier weitere Hindernisse hinzu
+  ]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      switch (e.key) {
+        case 'w':
+          setPlayerY((prevY) => prevY - 10);
+          break;
+        case 'a':
+          setPlayerX((prevX) => prevX - 10);
+          break;
+        case 's':
+          setPlayerY((prevY) => prevY + 10);
+          break;
+        case 'd':
+          setPlayerX((prevX) => prevX + 10);
+          break;
+        default:
+          break;
+      }
+    };
+
+    const applyGravity = () => {
+      if (playerY < 380) { // Bodenhöhe minus die Spielerhöhe (20px)
+        setPlayerY((prevY) => prevY + 5);
+      }
+    };
+
+    const checkCollisionWithObstacle = () => {
+      obstacles.forEach((obstacle) => {
+        if (
+          playerX < obstacle.x + 20 &&
+          playerX + 20 > obstacle.x &&
+          playerY < obstacle.y + 20 &&
+          playerY + 20 > obstacle.y
+        ) {
+          // Kollision mit Hindernis
+          // Hier kannst du die gewünschte Reaktion hinzufügen
+          // Zum Beispiel: setPlayerX(100); setPlayerY(200); um den Spieler zurückzusetzen
+        }
+      });
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    const gameLoop = () => {
+      applyGravity();
+      checkCollisionWithObstacle();
+    };
+
+    const gameInterval = setInterval(gameLoop, 20);
+
+    return () => {
+      clearInterval(gameInterval);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        background: '#3498db',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        style={{
+          width: '20px',
+          height: '20px',
+          background: 'red',
+          position: 'absolute',
+          left: `${playerX}px`,
+          top: `${playerY}px`,
+        }}
+      ></div>
+      {obstacles.map((obstacle, index) => (
+        <div
+          key={index}
+          style={{
+            width: '20px',
+            height: '20px',
+            background: '#e74c3c',
+            position: 'absolute',
+            left: `${obstacle.x}px`,
+            top: `${obstacle.y}px`,
+          }}
+        ></div>
+      ))}
+      <div
+        style={{
+          width: '100vw',
+          height: '20px',
+          background: '#27ae60',
+          position: 'absolute',
+          bottom: '0',
+          pointerEvents: 'none', // Blockiert Interaktionen mit dem Boden
+        }}
+      ></div>
+    </div>
+  );
+};
+
+export default ObjectMovement;
